@@ -1,0 +1,85 @@
+<p>Problem <strong>wyszukiwania</strong> w programowaniu jest jednym z najważniejszych problemów algorytmicznych. Można <strong>nie tylko</strong> przeszukiwać zbiory liczb, czy innych obiektów, ale także szukać optymalnego wyniku.</p>
+<p><span id="more-210"></span></p>
+<h2></h2>
+<h2>Wyszukiwanie liniowe &#8211; O(n)</h2>
+<p>&nbsp;</p>
+<p>Najprostszym i najbardziej trywialnym rozwiązaniem jest <em><strong>algorytm wyszukiwania liniowego</strong></em>, który jak sama nazwa wskazuje działa w czasie <em><strong>O(n).</strong></em></p>
+<p>Przykładowa implementacja:</p>
+<p>&nbsp;</p><pre class="crayon-plain-tag">int szukaj(int x, vector<int> &amp;v)
+{
+    for(int i = 0;i &lt; v.size();++i)
+    {
+        if(v[i] == x)
+            return i;
+    }
+    return -1;
+}</pre><p>&nbsp;</p>
+<p>Powyższy kod sprawdza każdą liczbę ze zbioru i jeśli jest natrafi na szukaną wartość zwraca jej <strong>indeks</strong>(gdy w tablicy jest więcej takich samych liczb, to <strong>funkcja zwróci indeks pierwszej</strong>), gdy takowej nie ma to funkcji zwróci <strong>-1</strong>.</p>
+<p>Bardzo łatwo można przekształcić powyższe rozwiązanie, tak by zwracało indeks <strong>ostatniego wystąpienie</strong> szukanego elementu.</p>
+<p></p><pre class="crayon-plain-tag">int szukaj(int x, vector&lt;int&gt; &amp;v)
+{
+    for(int i = v.size()-1;i &gt;= 0;--i)
+    {
+        if(v[i] == x)
+            return i;
+    }
+    return -1;
+}</pre><p> </p>
+<p>&nbsp;</p>
+<p>To rozwiązanie staje się jednak nieefektywne, gdy szukamy np. wiele liczb w tablicy. <em><strong>Natchnienia do wymyślenia czegoś szybszego musimy szukać w codziennym życiu <img src="https://s.w.org/images/core/emoji/2.2.1/72x72/1f609.png" alt="😉" class="wp-smiley" style="height: 1em; max-height: 1em;" /></strong></em></p>
+<hr />
+<p>&nbsp;</p>
+<h2>W poszukiwaniu lepszego rozwiązania</h2>
+<p>Skoro potrzebujemy szybszego algorytmu szukającego, przyjrzyjmy się jak sobie z tym radzimy na co dzień.  Zadajmy sobie pytanie:</p>
+<p>&nbsp;</p>
+<blockquote><p>Jak poszukujemy frazy w słowniku?</p>
+<p>Czy robimy to tak jak w naszym poprzednim algorytmie?</p></blockquote>
+<p>&nbsp;</p>
+<p>Odpowiedź jest oczywista: <em><strong>NIE!</strong></em></p>
+<p>Przecież nikt nie będzie sprawdzał każdego jednego słówka w słowniku. To potrwało by wieki. Korzystamy z fajnej własności słownika. Słownik jest przecież posortowany alfabetycznie. Przez to wiemy, że jak szukamy czegoś na literę &#8216;R&#8217;, a słownik mamy otworzony na literze &#8216;L&#8217;, to wiemy, że wszystkie poprzednie strony można już odrzucić, bo wiadomo, że szukanego wyrazu tam nie będzie. W taki sposób coraz bardziej zawężamy pole przeszukiwania i po kilku sprawdzeniach mamy wynik, pomimo że wyrazów jest <em><strong>ponad 100 tysięcy</strong></em>!</p>
+<p>Jak zatem przenieść naszą znakomitą metodę szukania do funkcji?</p>
+<hr />
+<p>&nbsp;</p>
+<h2>Wyszukiwanie &#8220;z życia wzięte&#8221; binarne &#8211; O(log n)</h2>
+<p>&nbsp;</p>
+<p>Jeszcze przed tworzeniem jakichkolwiek implementacji należałoby upewnić się czy nasze rozwiązanie jest rzeczywiście takie idealne. Musimy bowiem pamiętać, że zadziało ono tylko w przypadku, gdy nasz tablica <strong>jest posortowana</strong>, inaczej nigdy nie możemy założyć, że naszego elementu na pewno nie będzie w jakimś przedziale. Na nasze szczęście znane są algorytmy sortowanie w czasie <em><strong>O(n log n)</strong></em>, więc niewiele gorszym od liniowego, a przecież sortować będziemy tylko raz. O tych algorytmach powstaną posty w przyszłości, dziś mogę polecić tylko funkcję <em><strong>sort</strong></em> z C++ lub (lepiej) zagłębienie się w temat i poszukanie materiałów na własną rękę.</p>
+<p>&nbsp;</p>
+<h5>Skoro założenia mamy za sobą przejdźmy do meritum.</h5>
+<p>&nbsp;</p>
+<p>Przejdźmy zatem do pierwszego kroku naszego algorytmu, czyli:</p>
+<p>&nbsp;</p>
+<blockquote><p>Jak wybrać element do sprawdzenia, tak by odrzucić jak najwięcej rzeczy?</p></blockquote>
+<p>&nbsp;</p>
+<p>Odpowiedź to oczywiście podzielić na <em><strong>2 równe części</strong></em>. Jeśli wybierzemy jakikolwiek inny element podziału niż środek zawsze istnieje szansa(50%), że szukany element będzie w tej większej części.</p>
+<p>Następny krok to sprawdzenie zgodności elementu i wybranie przedziału, co już trudne nie jest.</p>
+<ul>
+<li>Równa się &#8211; znaleźliśmy szukaną wartość;</li>
+<li>Za duża &#8211; szukać powinniśmy wśród mniejszych liczb</li>
+<li>Za mała &#8211; szukać musimy wśród większych liczb</li>
+</ul>
+<p>&nbsp;</p>
+<p>Teraz zostało nam tylko to zaimplementować:</p>
+<p>&nbsp;</p><pre class="crayon-plain-tag">int szukaj(int x, vector&lt;int&gt; &amp;v)
+{
+	int poczatek = 0;
+	int koniec = v.size()-1;
+	while (poczatek &lt; koniec)
+	{
+		int srodek = (poczatek + koniec) / 2;
+		if(v[srodek] == x)
+			return srodek;
+		
+		if (v[srodek] &lt; x)	
+			poczatek = srodek + 1;
+		else
+			koniec = srodek - 1;
+	}
+	return -1;
+}</pre><p>&nbsp;</p>
+<p>Powyższy kod realizuje nasz pomysł, który nosi nazwę <em><strong>wyszukiwanie binarne</strong></em>. Prawdopodobnie nazwa wzięła się z tego, że podstawą szukania jest dzielenia przez <em><strong>2</strong></em>. Złożoność tego algorytmu to <em><strong>O(log n)</strong></em>, więc dla wyszukania liczby w tablicy mającej <em><strong>milion</strong></em> elementów potrzeba zaledwie <em><strong>20</strong></em> sprawdzeń, nawet gdy danej liczby nie ma w naszej tablicy. Jest to zatem ogromne przyspieszenie, dzięki któremu można rozwiązywać wiele problemów.</p>
+<p>Technika zastosowana przy tworzeniu tego rozwiązania również ma własną nazwę: &#8220;<em><strong>Dziel i zwyciężaj</strong></em>&#8220;. Jej zastosowanie jest bardzo szerokie i warto o niej pamiętać. Polega ona na <em><strong>dzieleniu problemu na mniejsze</strong></em>, co ma pozwolić <em><strong>zmniejszyć czas</strong></em> działania programu.</p>
+<hr />
+<h2></h2>
+<h1>Podsumowanie</h1>
+<p>Zachęcam każdego czytelnika do zapoznania się z ćwiczeniami dostępnymi <a href="http://wazniak.mimuw.edu.pl/index.php?title=Wst%C4%99p_do_programowania_/_%C4%86wiczenia_5">tutaj</a>. W części 2 będę omawiał rozwiązania do nich i tym samym praktyczne zastosowania wyszukiwania binarnego. Zachęcam do zadawania pytań i pisania wszelakich uwag w sekcji komentarzy. Mam nadzieję, że wpis się podobał i że wszystko było zrozumiałe <img src="https://s.w.org/images/core/emoji/2.2.1/72x72/1f609.png" alt="😉" class="wp-smiley" style="height: 1em; max-height: 1em;" /></p>
+<p>Artykuł <a rel="nofollow" href="http://www.xenoxdev.pl/algortytmika-od-podstaw/problem-wyszukiwania-w-programowaniu-cz-1/">Problem wyszukiwania w programowaniu &#8211; cz. 1 (wyszukiwanie binarne)</a> pochodzi z serwisu <a rel="nofollow" href="http://www.xenoxdev.pl">XENOXDEV.PL</a>.</p>

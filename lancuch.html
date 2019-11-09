@@ -1,0 +1,70 @@
+<p>Zadanie &#8220;<strong>Łańcuch Kolorowy</strong>&#8221; polega na sprawdzeniu ile jest &#8220;<em>idealnych</em>&#8221; spójnych podciągów danego ciągu koralików. Idealny podciąg to taki, który posiada dokładnie <em>l<sub>i</sub></em> koralików koloru <em>c<sub>i</sub></em>.</p>
+<p><span id="more-96"></span></p>
+<h2>Rozwiązanie brutalne</h2>
+<p>Pierwszym pomysłem jest zatem zaimplementowanie dokładnie tego o co nas proszą:</p>
+<ul>
+<li>zapamiętujemy ilość koralików każdego koloru w idealnym ciągu oraz jego długość;</li>
+<li>bierzemy każdy spójny podciąg, o długości idealnego ciągu, naszej tablicy koralików i sprawdzamy czy liczba każdego z kolorów się zgadza, gdy tak jest powiększamy wynik o 1;</li>
+</ul>
+<p>Takie rozwiązanie wymaga jednak od nas ciągłego przechodzenia po tablicy kolorów co sprawia, że za takie rozwiązanie dostaniemy ok <strong>50pkt</strong>.</p>
+<p>&nbsp;</p>
+<h4>Przykładowa implementacja:</h4>
+<pre class="brush: cpp; title: ; notranslate">
+/*
+sumColors - długość idealnego ciągu
+idealSequence - tablica ilości każdego koloru w idealnym ciągu
+amountColors, colors - ilość i rodzaj danego koloru(z wejscia)
+sequenceColors - tablica ilości każdego koloru w sprawdzanym podciągu
+sequence - ciąg koralików
+*/
+int sumColors = 0;
+for(int i = 0;i &lt; m;++i)
+{
+    idealSquence[colors[i]] = amountColors[i];
+    sumColors += amountColors[i];
+}
+for(int i = 0;i &lt; sumColors-1;++i)
+    ++sequenceColors[sequence[i]];
+
+for(int i = sumColors-1;i &lt; n;++i)
+{
+    bool ideal = true;
+    ++sequenceColors[sequence[i]];
+    for(int j = 0;j &lt; m;++j)
+    {
+        if(idealSequence[colors[j]] != sequenceColors[colors[j]])
+            ideal = false;
+    }
+    if(ideal)
+        ++result;
+    --sequenceColors[sequence[i-sumColors+1]];
+}
+</pre>
+<hr />
+<h2></h2>
+<h2>Rozwiązanie wzorcowe</h2>
+<p>Rozwiązanie wzorcowe polega na zastosowaniu techniki <em><strong>haszowania</strong></em>, która pozwala w czasie stałym sprawdzać czy dany podciąg jest idealny.</p>
+<p><em>Haszowanie</em> pozwala nam zapisać dany ciąg jako liczba, która dzięki zastosowaniu<strong> potęg dużej liczby pierwszej modulo inna liczba pierwsza</strong>, prawie na pewno będzie unikalna i nie pojawi się przy innym ciągu.</p>
+<pre class="brush: cpp; title: ; notranslate">
+long long fixMod(long long n)
+{
+    return ((n%mod)+mod)%mod;
+}
+long long hashC(vector&lt;int&gt; &amp;idealSequence)
+{
+    long long hash = 0;
+    for(int i = 0;i &lt; idealSequence.size();++i)
+    {
+        hash += powers[idealSequence[i]];
+        hash  = fixMod(hash);
+    }
+    return hash;
+}
+ </pre>
+<p>Powyższy kod sumuje potęgi liczby pierwszej, której wykładnikami są kolejne kolory idealnego ciągu, a potem wykonuje &#8220;magiczne&#8221; modulo <img src="https://s.w.org/images/core/emoji/2.2.1/72x72/1f609.png" alt="😉" class="wp-smiley" style="height: 1em; max-height: 1em;" /></p>
+<p>Funkcja <em><strong>fixMod</strong></em> ma zwrócić wartość z przedziału od <strong>0 do mod</strong>. Rozważając 2 możliwe przypadki dla &#8216;n'(ujemne lub nieujemne) można zauważyć, że zwracana wartość zawsze będzie z chcianego przedziału.</p>
+<p>Teraz możemy wykorzystać tę samą technikę do sprawdzania czy nasz podciąg jest &#8220;idealny&#8221;. Haszujemy podsłowo długości naszego wzorca i sprawdzamy czy jest identyczne. Potem przesuwamy się w prawo odejmując kolor z początku i dodając nowy na koniec. Całe rozwiązanie działa w czasie <strong>O(n)</strong> i daje <strong>100pkt</strong> za to zadanie.</p>
+<hr />
+<h2>Podsumowanie</h2>
+<p>Zachęcam do zgłębienia tematu haszowania i szerszego zapoznania się z możliwościami tej techniki oraz zadawania pytań w komentarzach. Pełen kod z rozwiązaniem zadania znajduję się na <a href="https://github.com/Xenox40/AlgoContests">GitHubie</a>.</p>
+<p>Artykuł <a rel="nofollow" href="http://www.xenoxdev.pl/za/lancuch-kolorowy/">Łańcuch kolorowy &#8211; Finał XX OI</a> pochodzi z serwisu <a rel="nofollow" href="http://www.xenoxdev.pl">XENOXDEV.PL</a>.</p>

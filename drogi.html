@@ -1,0 +1,50 @@
+<p>W zadaniu &#8220;<em><strong>Drogi</strong></em>&#8221; musimy pomóc królowi Bajtazarowi w obliczeniu ile minimalnie dróg jednokierunkowych trzeba dobudować, aby dało się dojechać z każdego miasta do każdego innego.</p>
+<p>Polecenie dość prosto można przekształcić na język grafów. Należy dodać minimalną liczbę <em><strong>krawędzi skierowanych</strong></em> do grafu wejściowego, tak by powstały graf był <em><strong>silnie spójny</strong></em>. W omówienie, tak samo jak w treści, zostało przyjęte, że <strong><em>n </em></strong>to <strong>liczba wierzchołków</strong>, <em><strong>m</strong> </em>to <strong>liczba krawędzi</strong>.</p>
+<p><span id="more-156"></span></p>
+<h2>Rozwiązanie brutalne</h2>
+<p>Po przeczytaniu zadania pierwszym co się nasunie, może być przeglądanie wszystkich wierzchołków w grafie i dla każdego z ich dzieci sprawdzenie czy da się w jakikolwiek sposób wrócić do rodzica.</p>
+<p>Dla pokazanego wyżej testu nasz połączy miasta: &#8220;<em>6 i 1</em>&#8221; oraz &#8220;<em>4 i 3</em>&#8220;, gdyż z &#8220;<em>6 nie da się wrócić do 1</em>&#8220;, podobnie jak z &#8220;<em>4 do 3</em>&#8220;, i zwróci wynik<em> 2</em>.</p>
+<p>Rozwiązanie zmusza nas jednak do przeszukania grafu dla każdej krawędzi, bo:</p>
+<ul>
+<li>przeglądając wszystkich sąsiadów każdego wierzchołka &#8220;przejdziemy&#8221; każdą krawędzią;</li>
+<li>dla każdego sąsiada musimy przeszukać być może nawet cały graf, aby dowiedzieć się czy da się wrócić do miasta, z którego przyszliśmy;</li>
+</ul>
+<p>Przez to całość działa w pesymistycznym czasie <strong>O(m*(n+m))</strong>, co jest stanowczo za wolne dla ograniczenia <strong>m = 10<sup>5</sup></strong>.</p>
+<hr />
+<h2></h2>
+<h2>Rozwiązanie wzorcowe</h2>
+<p>&nbsp;</p>
+<h5>Implementacja tego rozwiązanie znajduje się na moim <a href="https://github.com/Xenox40/AlgoContests/blob/master/PA 2005/dro.cpp">GitHubie</a>.</h5>
+<p>&nbsp;</p>
+<p>W poprzednim rozwiązaniu nie skorzystaliśmy z tego co nasuwa problem: <em><strong>Silnie Spójnych Składowych</strong></em>(w silnie spójnej składowej da się dość z każdego wierzchołka do każdego innego). W naszym zadaniu musimy doprowadzić do sytuacji, w której cały graf jest <strong>jedną silnie spójna składową</strong>. Na początku wyznaczmy więc SSS&#8217;y naszego wejściowego grafu:</p>
+<ul>
+<li>obliczamy czasy przetworzenia wierzchołków w kolejności<em><strong> post-order</strong></em> algorytmem przeszukiwania w głąb (DFS).</li>
+<li>wywołujemy algorytm DFS dla grafu transponowanego(odwrotnego) w kolejności <em><strong>malejących czasów przetworzenia wierzchołków</strong></em>. Wszystkie wierzchołki w jednym drzewie przeszukiwania w głąb należą do <em><strong>jednej silnie spójnej składowej</strong></em>.</li>
+</ul>
+<p>W mojej implementacji zajmuję się tym funkcja &#8220;<em><strong>computeSSS()</strong></em>&#8221; .</p>
+<p>Znając numer SSS, do której należy każdy z wierzchołków, możemy teraz zbudować <em><strong>2 grafy</strong></em>, których wierzchołkami, będą SSS&#8217;y, a krawędziami połączenia <em><strong>jednokierunkowe</strong></em> pomiędzy składowymi, z tym że w 2 grafie dodajemy krawędzie<em><strong> odwrotne</strong></em> (dlaczego? &#8211; o tym za chwile <img src="https://s.w.org/images/core/emoji/2.2.1/72x72/1f609.png" alt="😉" class="wp-smiley" style="height: 1em; max-height: 1em;" /> ). Następnie tworzymy <em><strong>2 zmienne</strong></em> odpowiadające za wynik w danym grafie oraz przeglądamy wierzchołki w grafie. Jeśli któryś z nich nie ma krawędzi wychodzących zwiększamy jego wynik o <em><strong>1</strong></em>. Naszym wynikiem wyjściowym będzie <em><strong>większa</strong></em> z tych 2 liczb.</p>
+<p>Magia &#8211; czyż nie? <img src="https://s.w.org/images/core/emoji/2.2.1/72x72/1f600.png" alt="😀" class="wp-smiley" style="height: 1em; max-height: 1em;" /></p>
+<p>&nbsp;</p>
+<h4>Dlaczego zliczamy &#8220;puste&#8221; wierzchołki?</h4>
+<p>Zauważmy, że najbardziej optymalne będzie wykorzystanie<em><strong> istniejących krawędzi</strong></em> i dobudowywanie nowych tylko, gdy już normalnie nie możemy iść dalej. Oczywiście ostatnie &#8220;końcówki&#8221; trzeba podpiąć do początku by powstał <em><strong>cykl</strong></em>.</p>
+<p>&nbsp;</p>
+<p>NO FOTO <br/>Dla danego przykładu musimy zwrócić 2, gdyż mam 2 końce i każdy z nich musi mieć krawędź do początku.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<h4>Dlaczego potrzebujemy 2 graf(odwrócony)?</h4>
+<p>Może zdarzyć się sytuacja, gdy początkowych wierzchołków będzie <strong>więcej</strong> niż końcowych, a my zliczymy po 1 krawędzie od końcowej(to może nie wystarczyć).</p>
+<p>&nbsp;</p>
+<p>NO FOTO <br/>W tym przykładzie wynik dla pierwszego grafu  wynosi <strong>1</strong>, gdyż jest tylko <strong>1 koniec</strong>(nr 3), a poprawna odpowiedź to <strong>2</strong>. Taką odpowiedź zwróci<strong> odwrócony graf</strong>, dla którego końcami będą początki normalnego.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>Jak łatwo się domyśleć nie będzie więcej przypadków, gdyż mamy, albo więcej zakończeń, albo więcej początków(dla równości wyniki będą równe).</p>
+<p>&nbsp;</p>
+<h2>Podsumowanie</h2>
+<p>&nbsp;</p>
+<p>Zadanie nie było bardzo trudne, ale wymagało dogłębnej analizy. Bardzo łatwo było też przeoczyć sytuację nr 2, przez co <em><strong>traciliśmy około 40pkt</strong></em>.</p>
+<p>Mam nadzieję, że omówienie było zrozumiałe. Zachęcam do napisania opinii lub wszelakich pytań w sekcji komentarzy <img src="https://s.w.org/images/core/emoji/2.2.1/72x72/1f642.png" alt="🙂" class="wp-smiley" style="height: 1em; max-height: 1em;" /></p>
+<p>&nbsp;</p>
+<p>Artykuł <a rel="nofollow" href="http://www.xenoxdev.pl/za/drogi/">Drogi &#8211; Potyczki Algorytmiczne 2005(Finał)</a> pochodzi z serwisu <a rel="nofollow" href="http://www.xenoxdev.pl">XENOXDEV.PL</a>.</p>
